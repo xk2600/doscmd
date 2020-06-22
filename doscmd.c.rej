@@ -1,0 +1,102 @@
+***************
+*** 64,69 ****
+  int		capture_fd = -1;
+  int		dead = 0;
+  int		xmode = 0;
+  int		booting = 0;
+  int		raw_kbd = 0;
+  int		timer_disable = 0;
+--- 64,70 ----
+  int		capture_fd = -1;
+  int		dead = 0;
+  int		xmode = 0;
++ int		quietmode = 0;
+  int		booting = 0;
+  int		raw_kbd = 0;
+  int		timer_disable = 0;
+***************
+*** 226,232 ****
+      kbd_init();
+      kbd_bios_init();
+      video_init();
+-     if (xmode)
+  	mouse_init();
+      video_bios_init();
+      disk_bios_init();
+--- 227,233 ----
+      kbd_init();
+      kbd_bios_init();
+      video_init();
++     if (xmode || quietmode)
+  	mouse_init();
+      video_bios_init();
+      disk_bios_init();
+***************
+*** 511,517 ****
+      FILE	*fp;
+      char 	*col;
+  
+-     while ((c = getopt(argc, argv, "234AbCc:Dd:EFGHIi:kLMOo:Pp:RrS:TtU:vVxXYz")) != -1) {
+  	switch (c) {
+  	case '2':
+  	    debug_flags |= D_TRAPS2;
+--- 512,518 ----
+      FILE	*fp;
+      char 	*col;
+  
++     while ((c = getopt(argc, argv, "234AbCc:Dd:EFGHIi:kLMOo:PpQ:RrS:TtU:vVxXYz")) != -1) {
+  	switch (c) {
+  	case '2':
+  	    debug_flags |= D_TRAPS2;
+***************
+*** 620,625 ****
+  		define_output_port_handler(p++, outb_port);
+  	    }
+  	    break;
+  	case 'R':
+  	    debug_flags |= D_REDIR;
+  	    break;
+--- 621,629 ----
+  		define_output_port_handler(p++, outb_port);
+  	    }
+  	    break;
++ 	case 'Q':
++ 	    quietmode = 1;
++ 	    break;
+  	case 'R':
+  	    debug_flags |= D_REDIR;
+  	    break;
+***************
+*** 826,832 ****
+  done(regcontext_t *REGS, int val)
+  {
+      if (curpsp < 2) {
+- 	if (xmode) {
+  	    const char *m;
+  
+  	    tty_move(24, 0);
+--- 830,836 ----
+  done(regcontext_t *REGS, int val)
+  {
+      if (curpsp < 2) {
++ 	if (xmode && !quietmode) {
+  	    const char *m;
+  
+  	    tty_move(24, 0);
+***************
+*** 861,867 ****
+  	coq = coq->next;
+  	c->func(c->arg);
+      }
+-     if (!xmode)		/* XXX not for bootmode */
+  	puts("\n");
+      exit(status);
+  }
+--- 865,871 ----
+  	coq = coq->next;
+  	c->func(c->arg);
+      }
++     if (!(xmode || quietmode))		/* XXX not for bootmode */
+  	puts("\n");
+      exit(status);
+  }

@@ -1,0 +1,197 @@
+***************
+*** 57,63 ****
+  
+  	switch (R_AH) {
+  	case 0x00:		/* Set display mode */
+- 		if (!xmode)
+  			goto unsupported;
+  		init_mode(R_AL);
+  		break;
+--- 57,63 ----
+  
+  	switch (R_AH) {
+  	case 0x00:		/* Set display mode */
++ 		if (!(xmode || quietmode))
+  			goto unsupported;
+  		init_mode(R_AL);
+  		break;
+***************
+*** 94,105 ****
+  		break;
+  	}
+  	case 0x02:		/* Position cursor */
+- 		if (!xmode)
+  			goto unsupported;
+  		tty_move(R_DH, R_DL);
+  		break;
+  	case 0x03:		/* Read cursor position */
+- 		if (!xmode)
+  			goto unsupported;
+  		tty_report(&i, &j);
+  		R_DH = i;
+--- 94,105 ----
+  		break;
+  	}
+  	case 0x02:		/* Position cursor */
++ 		if (!(xmode || quietmode))
+  			goto unsupported;
+  		tty_move(R_DH, R_DL);
+  		break;
+  	case 0x03:		/* Read cursor position */
++ 		if (!(xmode || quietmode))
+  			goto unsupported;
+  		tty_report(&i, &j);
+  		R_DH = i;
+***************
+*** 111,117 ****
+  		debug(D_VIDEO, "Select current display page %d\n", R_AL);
+  		break;
+  	case 0x06:		/* initialize window/scroll text upward */
+- 		if (!xmode)
+  			goto unsupported;
+  		if (R_AL == 0)		/* clear screen */
+  			R_AL = DpyRows + 1;
+--- 111,117 ----
+  		debug(D_VIDEO, "Select current display page %d\n", R_AL);
+  		break;
+  	case 0x06:		/* initialize window/scroll text upward */
++ 		if (!(xmode || quietmode))
+  			goto unsupported;
+  		if (R_AL == 0)		/* clear screen */
+  			R_AL = DpyRows + 1;
+***************
+*** 120,126 ****
+  		    R_AL, R_BH << 8);
+  		break;
+  	case 0x07:		/* initialize window/scroll text downward */
+- 		if (!xmode)
+  			goto unsupported;
+  		if (R_AL == 0)		/* clear screen */
+  			R_AL = DpyRows + 1;
+--- 120,126 ----
+  		    R_AL, R_BH << 8);
+  		break;
+  	case 0x07:		/* initialize window/scroll text downward */
++ 		if (!(xmode || quietmode))
+  			goto unsupported;
+  		if (R_AL == 0)		/* clear screen */
+  			R_AL = DpyRows + 1;
+***************
+*** 129,152 ****
+  		    R_AL, R_BH << 8);
+  		break;
+  	case 0x08:		/* read character/attribute */
+- 		if (!xmode)
+  			goto unsupported;
+  		i = tty_char(-1, -1);
+  		R_AX = i;
+  		break;
+  	case 0x09:		/* write character/attribute */
+- 		if (!xmode)
+  			goto unsupported;
+  		tty_rwrite(R_CX, R_AL, R_BL << 8);
+  		break;
+  	case 0x0a:		/* write character */
+- 		if (!xmode)
+  			goto unsupported;
+  		debug(D_HALF, "Int 10:0a: Write char: %02x\n", R_AL);
+  		tty_rwrite(R_CX, R_AL, -1);
+  		break;
+  	case 0x0b:		/* set border color */
+- 		if (!xmode)
+  			goto unsupported;
+  		video_setborder(R_BL);
+  		break;
+--- 129,152 ----
+  		    R_AL, R_BH << 8);
+  		break;
+  	case 0x08:		/* read character/attribute */
++ 		if (!(xmode || quietmode))
+  			goto unsupported;
+  		i = tty_char(-1, -1);
+  		R_AX = i;
+  		break;
+  	case 0x09:		/* write character/attribute */
++ 		if (!(xmode || quietmode))
+  			goto unsupported;
+  		tty_rwrite(R_CX, R_AL, R_BL << 8);
+  		break;
+  	case 0x0a:		/* write character */
++ 		if (!(xmode || quietmode))
+  			goto unsupported;
+  		debug(D_HALF, "Int 10:0a: Write char: %02x\n", R_AL);
+  		tty_rwrite(R_CX, R_AL, -1);
+  		break;
+  	case 0x0b:		/* set border color */
++ 		if (!(xmode || quietmode))
+  			goto unsupported;
+  		video_setborder(R_BL);
+  		break;
+***************
+*** 165,171 ****
+  		R_BH = 0;/*ActivePage *//* display page */
+  		break;
+  	case 0x10:
+- 		if (!xmode)
+  			goto unsupported;
+  		switch (R_AL) {
+  		case 0x00:		/* Set single palette register */
+--- 165,171 ----
+  		R_BH = 0;/*ActivePage *//* display page */
+  		break;
+  	case 0x10:
++ 		if (!(xmode || quietmode))
+  			goto unsupported;
+  		switch (R_AL) {
+  		case 0x00:		/* Set single palette register */
+***************
+*** 350,356 ****
+  		}
+  		break;
+  	case 0x12:		/* Alternate function select */
+- 		if (!xmode)
+  			goto unsupported;
+  		switch (R_BL) {
+  		case 0x10:	/* Read EGA/VGA config */
+--- 350,356 ----
+  		}
+  		break;
+  	case 0x12:		/* Alternate function select */
++ 		if (!(xmode || quietmode))
+  			goto unsupported;
+  		switch (R_BL) {
+  		case 0x10:	/* Read EGA/VGA config */
+***************
+*** 372,378 ****
+  		}
+  		break;
+  	case 0x13: /* write character string */
+- 		if (!xmode)
+  			goto unsupported;
+                  addr = (char *)MAKEPTR(R_ES, R_BP);
+  		switch (R_AL & 0x03) {
+--- 372,378 ----
+  		}
+  		break;
+  	case 0x13: /* write character string */
++ 		if (!(xmode || quietmode))
+  			goto unsupported;
+                  addr = (char *)MAKEPTR(R_ES, R_BP);
+  		switch (R_AL & 0x03) {
+***************
+*** 407,413 ****
+  		}
+  		break;
+  	case 0x1a:
+- 		if (!xmode)
+  			goto unsupported;
+  		R_AL = 0x1a;		/* I am VGA */
+  		R_BL = 8;		/* Color VGA */
+--- 407,413 ----
+  		}
+  		break;
+  	case 0x1a:
++ 		if (!(xmode || quietmode))
+  			goto unsupported;
+  		R_AL = 0x1a;		/* I am VGA */
+  		R_BL = 8;		/* Color VGA */

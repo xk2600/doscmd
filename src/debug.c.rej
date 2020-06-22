@@ -1,0 +1,17 @@
+***************
+*** 106,112 ****
+  
+      dead = 1;
+  
+-     if (xmode) {
+  	char buf[1024];
+  	const char *m;
+  
+--- 106,112 ----
+  
+      dead = 1;
+  
++     if (xmode && !quietmode) {
+  	char buf[1024];
+  	const char *m;
+  
